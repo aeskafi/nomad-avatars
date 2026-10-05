@@ -13,9 +13,16 @@
   "scripts": {
     "build": "lerna run build",
     "test": "lerna run test",
+    "demo": "node -e 'const fs=require(\"fs\"); const {createAvatar}=require(\"./packages/@dicebear/avatars/dist\"); const bottts=require(\"./packages/@dicebear/avatars-bottts-sprites/dist\"); fs.writeFileSync(\"test-avatar.svg\", createAvatar(bottts, { seed: \"tech-nomad\" })); console.log(\"Generated test-avatar.svg successfully!\");'",
+    "website:start": "yarn --cwd website start",
+    "website:build": "yarn --cwd website build",
+    "website:serve": "yarn --cwd website serve",
     "prepare-publish": "lerna version --force-publish"
   },
   "devDependencies": {
     "lerna": "^4.0.0"
+  },
+  "resolutions": {
+    "tslib": "^2.6.2"
   }
 }

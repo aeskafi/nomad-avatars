@@ -5,7 +5,7 @@ module.exports = {
   tagline: 'DiceBear is an avatar library for designers and developers.',
   url: 'https://avatars.dicebear.com',
   baseUrl: '/',
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn',
   favicon: 'favicon.ico',
   organizationName: 'DiceBear', // Usually your GitHub org/user name.
   projectName: 'avatars', // Usually your repo name.

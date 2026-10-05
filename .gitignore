@@ -1,7 +1,28 @@
 # Cache and log files
-lerna-debug.log
+lerna-debug.log*
+yarn-debug.log*
+yarn-error.log*
+npm-debug.log*
 .DS_Store
-yarn-error.log
+Thumbs.db
 
 # Dependencies
-node_modules
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+!.env.example
+!.env.dist
+
+# Build artifacts & caches
+dist/
+build/
+lib/
+.docusaurus/
+.cache-loader/
+.tmp/
+
+# Local test outputs
+test-avatar*.svg
