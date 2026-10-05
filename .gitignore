@@ -2,13 +2,21 @@
 .turbo
 .eslintcache
 .DS_Store
+Thumbs.db
 yarn-error.log
+npm-debug.log*
 
 # Dependencies
-node_modules
+node_modules/
 
 # Local environment files
+.env
 .env*.local
+!.env.example
+!.env.dist
 
-# NuGet packages the CI jobs pack into before publishing
-dist-nuget
+# Build artifacts & local outputs
+dist/
+dist-nuget/
+lib/
+nomad-avatar*.svg

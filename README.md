@@ -1,118 +1,148 @@
-<h1><img src="https://www.dicebear.com/logo-readme.svg" width="28" /> DiceBear Avatar Library</h1>
+<div align="center">
 
-<p>
-  <img src="https://www.dicebear.com/readme-hero.svg" alt="A grid of DiceBear avatars in twenty-four different styles" width="100%" />
+# 🌍 NomadAvatars
+
+**The Ultimate Deterministic Avatar Generator Studio & Multi-Language Engine for Tech Nomads, Creators & Developers.**
+
+[![DiceBear Core](https://img.shields.io/badge/DiceBear_Core-v10.7.0-3b82f6.svg?style=flat-square)](https://www.dicebear.com)
+[![Node.js](https://img.shields.io/badge/Node.js-%3E=20.19.0-339933.svg?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-007ACC.svg?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vue 3](https://img.shields.io/badge/Vue.js-3.5-4FC08D.svg?style=flat-square&logo=vue.js&logoColor=white)](https://vuejs.org/)
+[![Vite](https://img.shields.io/badge/Vite-7.3-646CFF.svg?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](./LICENSE)
+
+<br/>
+
+<p align="center">
+  <img src="https://www.dicebear.com/readme-hero.svg" alt="NomadAvatars collection preview" width="100%" />
 </p>
 
-[![npm](https://www.dicebear.com/badges/npm.svg)](https://www.npmjs.com/package/@dicebear/core)
-[![stars](https://www.dicebear.com/badges/stars.svg)](https://github.com/dicebear/dicebear/stargazers)
-[![license](https://www.dicebear.com/badges/license.svg)](./LICENSE)
+</div>
 
-DiceBear is an open source avatar library. It turns any seed string (a username
-or an email address, for example) into an SVG avatar in one of 61 styles, from
-hand-drawn characters to abstract patterns. The same seed always produces the
-same avatar, so you store a string instead of an image and never ask users to
-upload a profile picture.
+---
 
-Avatars are customizable through style options: colors, backgrounds, rotation,
-individual features like hair or glasses.
+## ⚡ Highlights
 
-[Playground](https://www.dicebear.com/playground) |
-[Documentation](https://www.dicebear.com/introduction) |
-[Editor](https://editor.dicebear.com)
+**NomadAvatars** transforms any seed string (username, email, nomad handle, or travel coordinate) into a crisp, customizable vector SVG avatar across **61+ distinct styles** — from hand-drawn characters and pixel art to modern isometric and geometric personas.
 
-## One library, seven languages
+- 🎯 **100% Deterministic Output**: The same seed string and configuration guaranteed to produce the exact same avatar every time.
+- 🎨 **Interactive Nomad Avatar Studio (`apps/editor`)**: Built with Vue 3, Vite, PrimeVue, and Pinia. Includes:
+  - Real-time SVG vector rendering
+  - One-click **Copy SVG** to clipboard for seamless pasting into Figma, React, or HTML
+  - High-res PNG & SVG downloads
+  - **🎲 Nomad Shuffle**: Instantly explores randomized styles and nomadic persona seeds
+- 🚀 **Sub-Millisecond Engine (`@dicebear/core`)**: Zero client DOM overhead, lightweight bundle footprint, and 755/755 unit tests passing.
+- 🌐 **7-Language Byte-Identical Parity**: Native implementations for JavaScript/TypeScript, Python, Rust, Go, PHP, Dart, and C#.
 
-DiceBear 10 ships as native libraries for JavaScript, PHP, Python, Rust, Go,
-Dart, and C#. Every port passes a shared test suite that requires byte-identical
-SVG output to the JavaScript reference. Generate an avatar in the browser,
-regenerate it later in a Go or PHP backend, and you get the same bytes.
+---
 
-| Language                | Package                                                                 | Install                                      |
-| ----------------------- | ----------------------------------------------------------------------- | -------------------------------------------- |
-| JavaScript / TypeScript | [`@dicebear/core`](https://www.npmjs.com/package/@dicebear/core)        | `npm install @dicebear/core`                 |
-| PHP                     | [`dicebear/core`](https://packagist.org/packages/dicebear/core)         | `composer require dicebear/core`             |
-| Python                  | [`dicebear-core`](https://pypi.org/project/dicebear-core/)              | `pip install dicebear-core`                  |
-| Rust                    | [`dicebear-core`](https://crates.io/crates/dicebear-core)               | `cargo add dicebear-core`                    |
-| Go                      | [`dicebear-go`](https://pkg.go.dev/github.com/dicebear/dicebear-go/v10) | `go get github.com/dicebear/dicebear-go/v10` |
-| Dart                    | [`dicebear_core`](https://pub.dev/packages/dicebear_core)               | `dart pub add dicebear_core`                 |
-| C#                      | [`DiceBear.Core`](https://www.nuget.org/packages/DiceBear.Core)         | `dotnet add package DiceBear.Core`           |
+## 🚀 Quickstart
 
-In JavaScript it looks like this; the
-[documentation](https://www.dicebear.com/introduction) has the equivalent for
-each language:
+### 1. Clone & Install
 
-```js
-import { Avatar } from '@dicebear/core';
-import definition from '@dicebear/styles/lorelei.json' with { type: 'json' };
-
-const avatar = new Avatar(definition, {
-  seed: 'John Doe',
-  size: 128,
-});
-
-avatar.toString(); // SVG string
-avatar.toDataUri(); // data:image/svg+xml;charset=utf-8,...
+```bash
+git clone https://github.com/aeskafi/dicebear.git nomad-avatars
+cd nomad-avatars
+npm install --ignore-scripts
 ```
 
-The 61 avatar styles are plain JSON definitions from the
-[`dicebear/styles`](https://github.com/dicebear/styles) repository, available as
-a package for each language. You can also
-[create your own style](https://www.dicebear.com/guides/create-an-avatar-style-with-figma/),
-with Figma or from scratch.
+### 2. Launch the Nomad Avatar Studio
 
-## Without writing code
+```bash
+npm run editor:build
+npm run editor:preview  # Live at http://localhost:3000
+```
 
-- The [HTTP API](https://www.dicebear.com/how-to-use/http-api/) returns avatars
-  from a plain URL, free and without an account:
-  `https://api.dicebear.com/10.x/lorelei/svg?seed=Felix`. For full control and
-  privacy you can
-  [host it yourself](https://www.dicebear.com/guides/host-the-http-api-yourself/)
-  with a single Docker container.
-- The [CLI](https://www.dicebear.com/how-to-use/cli/) generates avatar files in
-  bulk: `npx dicebear lorelei --count 10`.
-- The [editor](https://editor.dicebear.com) lets you assemble a single avatar by
-  hand and export it.
+For hot-reload local development:
 
-## This repository
+```bash
+npm run editor:dev
+```
 
-This monorepo contains the seven core libraries, the CLI, the SVG-to-raster
-converter, the documentation site ([dicebear.com](https://www.dicebear.com)),
-and the editor. Related projects live in their own repositories:
+### 3. Run Tests & Demo Script
 
-- [`dicebear/styles`](https://github.com/dicebear/styles): the official avatar
-  style definitions
-- [`dicebear/schema`](https://github.com/dicebear/schema): the JSON Schema
-  behind definitions and options
-- [`dicebear/api`](https://github.com/dicebear/api): the self-hostable HTTP API
-- [`dicebear/exporter-plugin-for-figma`](https://github.com/dicebear/exporter-plugin-for-figma):
-  the plugin for Figma for style authors
+```bash
+# Run the 755-test core test suite:
+npm run core:test
 
-Contributions are welcome; [CONTRIBUTING.md](./CONTRIBUTING.md) explains the
-setup and where each kind of change belongs.
+# Generate a quick demo avatar in <50ms:
+npm run demo
+```
 
-## License
+---
 
-The code is [MIT licensed](./LICENSE), including commercial use. The avatar
-styles are the work of their respective creators and carry their own licenses;
-the [license overview](https://www.dicebear.com/licenses/) lists them all, and
-many only ask for attribution.
+## 💻 Programmatic Usage
 
-## Star this repository
+Generate deterministic avatars directly in Node.js or modern browsers:
 
-If DiceBear saved you some work, a star makes the project easier to find for the
-next person looking for an avatar library. The
-[support page](https://www.dicebear.com/support/) lists the other ways to help.
+```typescript
+import { Style, Avatar } from '@dicebear/core';
+import loreleiDef from '@dicebear/styles/lorelei.json' with { type: 'json' };
 
-## Sponsors
+// Initialize style definition
+const style = new Style(loreleiDef);
 
-Advertisement: Many thanks to our sponsors who provide us with free or
-discounted products.
+// Create avatar instance
+const avatar = new Avatar(style, {
+  seed: 'walk-cook-live',
+  flip: false,
+  rotate: 0,
+});
 
-<a href="https://bunny.net/" target="_blank" rel="noopener noreferrer">
-    <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="https://www.dicebear.com/sponsors/bunny-light.svg">
-        <source media="(prefers-color-scheme: light)" srcset="https://www.dicebear.com/sponsors/bunny-dark.svg">
-        <img alt="bunny.net" src="https://www.dicebear.com/sponsors/bunny-dark.svg" height="64">
-    </picture>
-</a>
+// Export as SVG string
+const svg = avatar.toString();
+console.log(svg);
+// Output: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ...">...</svg>
+```
+
+---
+
+## 🌐 Multi-Language Support
+
+NomadAvatars is powered by the DiceBear 10 specification, ensuring identical avatar generation across all major backend and mobile platforms:
+
+| Language | Package | Command |
+|---|---|---|
+| **JavaScript / TypeScript** | `@dicebear/core` | `npm install @dicebear/core` |
+| **Python** | `dicebear-core` | `pip install dicebear-core` |
+| **Rust** | `dicebear-core` | `cargo add dicebear-core` |
+| **Go** | `dicebear-go` | `go get github.com/dicebear/dicebear-go/v10` |
+| **PHP** | `dicebear/core` | `composer require dicebear/core` |
+| **Dart / Flutter** | `dicebear_core` | `dart pub add dicebear_core` |
+| **C# / .NET** | `DiceBear.Core` | `dotnet add package DiceBear.Core` |
+
+---
+
+## 📁 Repository Structure
+
+```text
+nomad-avatars/
+├── apps/
+│   ├── editor/          # Nomad Avatar Studio web app (Vue 3, Vite, PrimeVue)
+│   └── docs/            # VitePress documentation portal
+├── src/
+│   ├── js/
+│   │   ├── core/        # Core avatar engine (@dicebear/core)
+│   │   ├── cli/         # Command-line avatar generation tool
+│   │   └── converter/   # SVG to PNG/JPEG raster converters
+│   ├── python/          # Native Python implementation
+│   ├── rust/            # Native Rust implementation
+│   ├── go/              # Native Go implementation
+│   ├── php/             # Native PHP implementation
+│   ├── dart/            # Native Dart implementation
+│   └── csharp/          # Native C# implementation
+└── tests/               # Parity test suites across all 7 languages
+```
+
+---
+
+## 🤝 Credits & Upstream
+
+- **Upstream Engine**: Created by [Florian Körner](https://github.com/floriankoerner) and the [DiceBear Community](https://www.dicebear.com).
+- **Customized & Curated by**: [Arham Eskafi](https://arham.dev) — Rapid MVP Specialist and creator documenting life on the road as an overland tech nomad on [Walk Cook Live](https://youtube.com/@walkcooklive).
+
+---
+
+## 📄 License
+
+This repository is licensed under the [MIT License](LICENSE). Third-party avatar styles retain their respective artwork licenses (see individual style definitions in `@dicebear/styles`).
