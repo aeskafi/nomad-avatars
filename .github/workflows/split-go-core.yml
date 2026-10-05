@@ -1,0 +1,41 @@
+name: Split Go Core
+
+on:
+  push:
+    branches:
+      - '*.x'
+    tags:
+      - 'v*'
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: danharrin/monorepo-split-github-action@v2.4.5
+        env:
+          GITHUB_TOKEN: ${{ secrets.SPLIT_TOKEN }}
+        with:
+          package_directory: src/go/core
+          repository_organization: dicebear
+          repository_name: dicebear-go
+          branch: ${{ github.ref_name }}
+          user_name: dicebear-bot
+          user_email: bot@dicebear.com
+
+      - if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        uses: danharrin/monorepo-split-github-action@v2.4.5
+        env:
+          GITHUB_TOKEN: ${{ secrets.SPLIT_TOKEN }}
+        with:
+          package_directory: src/go/core
+          repository_organization: dicebear
+          repository_name: dicebear-go
+          tag: ${{ github.ref_name }}
+          user_name: dicebear-bot
+          user_email: bot@dicebear.com

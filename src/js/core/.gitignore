@@ -1,0 +1,12 @@
+# Cache and log files
+.DS_Store
+
+# Dependencies
+node_modules
+
+# Build files
+lib
+
+# Generated files
+src/Validator/StyleValidator.js
+src/Validator/OptionsValidator.js

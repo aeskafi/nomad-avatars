@@ -1,0 +1,28 @@
+name: dicebear_core
+description: >-
+  Unique avatars from dozens of styles — deterministic, customizable,
+  vector-based.
+version: 10.7.0
+repository: https://github.com/dicebear/dicebear
+homepage: https://www.dicebear.com
+topics:
+  - avatar
+  - identicon
+  - svg
+  - dicebear
+
+environment:
+  sdk: ^3.4.0
+
+dependencies:
+  # The shared draft-07 JSON Schemas (style definition format and avatar
+  # options), shipped as a pure-data package.
+  dicebear_schema: ^1.5.1
+  # Runtime validation of style definitions and options against those schemas,
+  # matching the Ajv/opis/jsonschema-rs/santhosh-tekuri validators used by the
+  # other language ports.
+  json_schema: ^5.2.2
+
+dev_dependencies:
+  lints: ^4.0.0
+  test: ^1.25.0

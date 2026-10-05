@@ -1,0 +1,79 @@
+name: Deploy Website
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+# Two runs on the same branch must not overlap. Queue instead of cancel, so a
+# deploy that is already uploading to Bunny finishes.
+concurrency:
+  group: deploy-website-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    uses: dicebear/dicebear/.github/workflows/test.yml@10.x
+  deploy:
+    needs: test
+    environment: ${{ github.ref_name == '9.x' && 'website-v9' || 'website-latest' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download legal pages
+        env:
+          PAT: ${{ secrets.PAT }}
+        run: ./apps/docs/scripts/download-legal-pages.sh
+
+      - name: Build with VitePress
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_PRIVACY_POLICY_URL: ${{ vars.VITE_PRIVACY_POLICY_URL }}
+          VITE_COOKIE_POLICY_URL: ${{ vars.VITE_COOKIE_POLICY_URL }}
+          VITE_LEGAL_NOTICE_URL: ${{ vars.VITE_LEGAL_NOTICE_URL }}
+        run: npx turbo run build --filter='@dicebear/docs...'
+
+      # Two Bunny.net edge rules back llms.txt, llms-full.txt and the Markdown
+      # mirrors (*.md). They live in the pull zone dashboard, not in this
+      # repository:
+      #
+      #  1. `Content-Type: text/plain; charset=utf-8`. The pull zone serves no
+      #     charset of its own. HTML pages survive that because they declare
+      #     one in a <meta> tag; plain text cannot, and a browser then falls
+      #     back to windows-1252 and turns every non-ASCII character into
+      #     mojibake. The type is text/plain rather than text/markdown because
+      #     Firefox downloads text/markdown instead of displaying it.
+      #  2. `X-Robots-Tag: noindex`. Every docs page links its mirror, so
+      #     search engines find them, and without the header they compete with
+      #     the HTML pages as duplicate content.
+      #
+      # The verify step below fails the deploy when either rule is missing.
+      - name: Deploy to Bunny.net
+        uses: ayeressian/bunnycdn-storage-deploy@251c77f4b9e7e683ad00086de2bef5770c3386b2 # v2.4.5
+        with:
+          source: 'apps/docs/.vitepress/dist'
+          destination: ''
+          storageZoneName: '${{ secrets.WEBSITE_STORAGE_NAME }}'
+          storagePassword: '${{ secrets.WEBSITE_STORAGE_PASSWORD }}'
+          accessKey: '${{ secrets.CDN_ACCESS_KEY }}'
+          pullZoneId: '${{ secrets.WEBSITE_PULL_ZONE_ID }}'
+          upload: 'true'
+          remove: 'true'
+          purgePullZone: 'true'
+
+      - name: Verify the llms edge rules
+        # The 9.x site has no llms files and deploys to its own pull zone.
+        if: github.ref_name != '9.x'
+        run: ./apps/docs/scripts/verify-llms-headers.sh

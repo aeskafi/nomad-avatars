@@ -1,602 +1,575 @@
 # Changelog
 
-## [4.10.3] - 2022-06-16
+All notable changes to this project will be documented in this file.
 
-## Fixed
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-- `@dicebear/avatars-bottts-sprites` Fixed unexpected output of `undefined` in generated SVG.
+## [Unreleased]
 
-## [4.10.2] - 2021-12-22
-
-## Fixed
-
-- `@dicebear/avatars` For the defaults, a copy is now returned instead of a reference.
-
-## [4.10.1] - 2021-11-13
-
-## Fixed
-
-- `@dicebear/adventurer` Mouth position
-- `@dicebear/adventurer-neutral` Mouth position
-
-## [4.10.0] - 2021-10-17
-
-### Added
-
-- `@dicebear/adventurer` New Avatar style by Lisa Wischofsky
-- `@dicebear/adventurer-neutral` New Avatar style by Lisa Wischofsky
-
-## [4.9.1] - 2021-09-09
-
-### Fixed
-
-- License Files
-
-## [4.9.0] - 2021-09-05
-
-### Added
-
-- `@dicebear/personas` New Avatar style by draftbit.com.
-- `@dicebear/miniavs` New Avatar style by Webpixels.
-- `@dicebear/big-smile` New Avatar style by Ashley Seo.
-- `@dicebear/big-ears` New Avatar style by The Visual Team.
-- `@dicebear/big-ears-neutral` New Avatar style by The Visual Team.
+## [10.7.0] - 2026-08-26
 
 ### Changed
 
-- `@dicebear/micah` Rewritten via Figma plugin.
+- **Styles:** Bumped `@dicebear/styles` to `10.6.0` for the CLI, the docs, and
+  the editor. The release adds `cameo`, `gaze`, `marbles`, `shadows`, `slice`,
+  and `stack`, which take the collection from 55 to 61 styles. `gaze` is
+  animated, which takes that count from 18 to 19. Each of the six has a style
+  page with its own preview row and a preset gallery, and the four the docs list
+  under Characters are in the editor too.
 
-## [4.8.6] - 2021-09-02
-
-### Fixed
-
-- Cannot find module './options' or its corresponding type declarations. #150
-
-## [4.8.5] - 2021-09-01
-
-### Fixed
-
-- `@dicebear/avatars` margin option #149
-
-## [4.8.4] - 2021-08-29
-
-### Fixed
-
-- Typo (propability => probability)
-
-## [4.8.3] - 2021-08-29
+- **Editor:** Option labels can now differ per style. They are one flat map per
+  language, because an option key almost always means the same thing wherever it
+  appears. German was the exception: it gave the head and the piece sitting on
+  top of it the same word, "Kopf", in `bottts` and `croodles`, which put two
+  identical tabs in one strip, while English and Portuguese already told the two
+  apart. A style that needs a different word now overrides that one label under
+  `styles.<styleName>` in the message file, and only the language that deviates
+  carries an override. `marbles` and `cameo` took one too, for a highlight that
+  German and Portuguese called a flower and for a body color on a style that
+  draws no body. `npm run validate:messages` now fails the build on a missing
+  label, on two keys resolving to the same word inside one style, and on an
+  override whose key or style is gone.
 
 ### Fixed
 
-- Background schema validation (oneOf => anyOf)
+- **Core (C#):** Validation and rendering now agree with the other cores in
+  several places where 10.7.0-rc.1 did not. Schema patterns are rewritten before
+  they are compiled, because .NET reads `$` as matching before a trailing
+  newline and narrows `\s` to ASCII, which let a trailing newline through every
+  anchored pattern and let non-ASCII whitespace past the `javascript:` and
+  `url()` filters. A seed or title holding an unpaired surrogate keeps it
+  instead of becoming U+FFFD, which used to produce a different avatar. The JSON
+  envelope writes supplementary-plane characters literally. `Avatar.FromJson`
+  rejects JSON that is not an object. A component that references itself raises
+  `CircularComponentReferenceException` instead of overflowing the stack.
 
-## [4.8.2] - 2021-08-29
+  The color helpers are no longer public. `DiceBear.Color` collided with
+  `Godot.Color`, `UnityEngine.Color` and `System.Drawing.Color`, so a file with
+  `using DiceBear;` stopped compiling. This is a breaking change for anyone on
+  10.7.0-rc.1 who called them.
 
-### Fixed
-
-- Background color pattern
-
-## [4.8.1] - 2021-08-29
-
-### Fixed
-
-- `@dicebear/collection` Missing dependencies
-
-## [4.8.0] - 2021-08-29
+## [10.7.0-rc.1] - 2026-08-22
 
 ### Added
 
-- `@dicebear/open-peeps` New Avatar style by Pablo Stanley.
-- `@dicebear/pixel-art` New Avatar style as replacement for `male`, `female` and `human`
-- `@dicebear/pixel-art-neutral` New Avatar style
-- `@dicebear/croodles` New Avatar style by vijay verma.
-- `@dicebear/croodles-neutral` New Avatar style by vijay verma.
-- `@dicebear/avatars` New `rotate` option.
-- `@dicebear/avatars` New `flip` option.
-- `@dicebear/avatars` New `size` option as replacement for `width` and `height` options.
-- `@dicebear/avatars` New `translateX` option.
-- `@dicebear/avatars` New `translateY` option.
+- **Core:** A C# port, published to NuGet as `DiceBear.Core`. It renders SVG
+  byte-identical to the JavaScript reference and the PHP, Python, Rust, Go, and
+  Dart ports, and runs the shared parity fixtures to prove it. The package
+  targets `netstandard2.0` and `net8.0`, which covers .NET 8 and newer, .NET
+  Framework 4.6.1 and newer, Unity, and Godot 4.2+ with .NET. Godot was the
+  reason it exists: its two scripting languages are GDScript and C#, and until
+  now a Godot game could only reach DiceBear over the network. The schemas come
+  from the new `DiceBear.Schema` package and are validated with JsonSchema.Net.
+
+  Two things needed extra care to keep the output identical. The invariant
+  culture only applies simple case mappings, so `ß` would stay `ß` where the
+  reference writes `SS`, and the port carries the full JavaScript uppercase
+  table instead. `Math.Round` rounds halves to even, so the number formatter
+  compares the fractional part against 0.5 the way `Math.round` does.
+
+  The docs gained a C# library page, and the style pages, the playground and the
+  guides all carry C# snippets now. The style definitions come from the new
+  `DiceBear.Styles` package.
+
+## [10.6.1] - 2026-08-18
+
+### Fixed
+
+- **Core (all languages):** Avatars no longer carry empty wrapper elements. An
+  optional component that came up empty left its wrapper behind, and in
+  `notionists` that wrapper sits inside a mask. A masked group without content
+  has no bounding box, and AndroidSVG takes the mask size from that box, so the
+  whole file fails to render. Gallery apps on Android showed such avatars as
+  corrupted while browsers drew them fine. Every file reported as broken has
+  such a wrapper, and the working ones from the same download do not. A wrapper
+  is now left out when nothing inside it renders, unless it carries an id that
+  something may point at. `bottts-neutral`, `clay`, `critters`, `notionists`,
+  and `squircles` were affected, `bottts-neutral` in about half of all seeds.
+  The rendered image does not change.
+
+## [10.6.0] - 2026-08-16
+
+### Added
+
+- **Core:** Color fields in `OptionsDescriptor` now carry `notEqualTo`, the list
+  of color groups a group must differ from, next to the existing `contrastTo`,
+  in all six core implementations (JavaScript, PHP, Python, Rust, Go, and Dart).
+  Tooling that picks colors itself needs both constraints, because one explicit
+  color per group leaves the renderer nothing to sort or filter. The descriptor
+  parity fixtures and the guide on accessing all available options cover the new
+  property.
 
 ### Changed
 
-- `@dicebear/avatars` Option `backgroundColor` can now also handle an array. A random value is then selected via PRNG.
+- **Styles:** Bumped `@dicebear/styles` to `10.5.0` for the CLI, the docs, and
+  the editor. The release adds `cutouts`, `line-face` and `patchwork`, which
+  take the collection from 52 to 55 styles, and exposes the dark color nine
+  existing styles draw with as a color group: `inkColor` on seven of them,
+  `outlineColor` on `lorelei`, and `strokeColor` on `toon-head`. The CLI was
+  still on `^10.4.0`, a range that never matched the prerelease, so it had been
+  shipping 52 definitions while the docs and the editor were already on 55.
+
+### Fixed
+
+- **Editor:** Shuffle drew every color on its own and ignored the `contrastTo`
+  and `notEqualTo` constraints from the style definition. In `thumbs` that gave
+  the shape the background color in about one of five shuffles, where it then
+  vanished, and picked the worse of black and white for eyes and mouth about
+  half the time. `clay`, `critters`, `micah`, `voxel-art`, and `voxel-bot` were
+  affected too. Shuffle now resolves colors in dependency order and applies the
+  same constraints as the renderer.
+
+## [10.5.0] - 2026-08-09
+
+### Added
+
+- **Core:** New per-color option `*ColorOrder` with the values `random` and
+  `fixed`, in all six core implementations (JavaScript, PHP, Python, Rust, Go,
+  and Dart). `random` is the previous behavior: the PRNG shuffles the colors
+  before use. With `fixed`, colors passed via `*Color` keep exactly the given
+  order; gradient fills apply them as stops from first to last, solid fills
+  always use the first color, and the number of gradient stops defaults to the
+  number of given colors. Without user-supplied colors, `fixed` only skips the
+  shuffle and uses the style's palette in sorted order; `contrastTo` and
+  `notEqualTo` constraints still apply, so referenced color groups can keep the
+  result seed-dependent. Existing avatars are unaffected, since `random` stays
+  the default. Requested in discussion
+  [#549](https://github.com/orgs/dicebear/discussions/549) for building
+  gradients with a fixed color sequence, such as flag colors. `@dicebear/schema`
+  1.4.0 validates the option, and two new parity fixture cases per style pin its
+  behavior across the ports. The core options guide and the implementation
+  specification cover the details.
+- **Docs:** Style pages for `voxel-art` and `voxel-bot`, the two styles new in
+  `@dicebear/styles` 10.4.0. The animated-avatars page now fills its style count
+  from the definitions at build time, through the same token mechanism the
+  overall count already uses; the hardcoded number it replaces had gone stale
+  at 15.
+- **Editor:** The eight character styles the editor was missing: `clay`,
+  `critters`, `moods`, `pixelbot`, `sprouts`, `thumbs`, `voxel-art`, and
+  `voxel-bot`. Its style list now matches the docs' Characters category exactly,
+  and the new option labels are translated into English, German, and Portuguese.
+  The animation option stays hidden in the editor, since its export writes
+  static files; an avatar without an explicit `animationVariant` never animates,
+  because every animated variant carries weight 0.
+
+### Changed
+
+- **Core (JavaScript):** The schema validators are now generated with
+  [`@exodus/schemasafe`](https://github.com/ExodusMovement/schemasafe) instead
+  of Ajv. The published package still has no runtime dependencies, and the
+  validator code shrinks from 164 KB to 114 KB minified, so browser bundles of
+  `@dicebear/core` shrink by the same amount. Both compilers accept and reject
+  the same inputs: every published style definition and a set of deliberately
+  broken samples produced identical verdicts. Error messages change, however.
+  schemasafe reports JSON pointers without prose, so the message is now derived
+  from the failing keyword (`/size is smaller than allowed`), and every
+  `ValidationErrorDetail` carries two new optional fields, `schemaPath` and
+  `keyword`, that name the schema rule behind a failure. When an object violates
+  a named property and a pattern property at the same time, the error list only
+  reports the first group; the verdict is not affected.
+- **CLI:** Removed the unused `ajv` dependency, which makes a CLI install about
+  2.7 MB smaller.
+- **Converter:** The browser build no longer bundles an XML parser. Setting the
+  render size and mirroring `mask-type` declarations now run on the native
+  `DOMParser` and `XMLSerializer`, which every browser ships. The XML dependency
+  stack (fast-xml-parser and friends) made up nine tenths of the browser bundle;
+  it stays in the Node build, where no native XML machinery exists. A browser
+  bundle of `@dicebear/converter` shrinks from 26 kB to 1.4 kB gzipped. Two
+  edges change with the parser: a malformed SVG now fails with a clear error
+  instead of a parser-specific one, and when `normalizeMaskType` rewrites a
+  document in the browser, empty elements come back self-closing. Both helpers
+  are covered by new jsdom-based tests.
+- **Styles:** Bumped `@dicebear/styles` to `10.4.0` for the CLI, the docs, and
+  the editor. The release adds `voxel-art` and `voxel-bot`, which take the
+  collection from 50 to 52 styles. Both ship the opt-in `animation` component,
+  so 18 of the 52 styles can now animate.
 
 ### Deprecated
 
-- `@dicebear/avatars` `width` and `height` options are deprecated. Use `size` instead.
-- `@dicebear/avatars` `margin` option is deprecated. Use `scale` instead.
-- `@dicebear/avatars` SVG Util `addMargin` is deprecated. Use `addScale` instead.
-- `@dicebear/avatars` SVG Util `addRadius` is deprecated. Use `addViewboxMask` instead.
-- `@dicebear/avatars-male-style` Use `@dicebear/pixel-art` instead.
-- `@dicebear/avatars-female-style` Use `@dicebear/pixel-art` instead.
-- `@dicebear/avatars-human-style` Use `@dicebear/pixel-art` instead.
-
-## [4.7.4] - 2021-08-25
+- **Core:** The sorted fallback order that `*ColorOrder: 'fixed'` applies when
+  no `*Color` option is set. In DiceBear 10, this case deduplicates and
+  code-point sorts the style palette, so palettes keep their canonical order and
+  only the shuffle is skipped. DiceBear 11 will use the palette in its
+  definition order instead, the same verbatim rule that already applies to
+  user-supplied colors. That removes the user-colors/palette distinction from
+  the resolvers and makes `fixed` mean the same thing for both sources. The sort
+  site in each of the six ports carries a matching deprecation comment.
 
 ### Fixed
 
-- `@dicebear/avatars` Fixed color regex
-- `dicebear-project` Fixed missing dependency `json-schema-to-typescript`.
+- **Docs:** The bundle size estimator now reports what a bundler actually ships:
+  one minified bundle per package, gzipped as a whole. It previously gzipped
+  every published file on its own without minification, which showed
+  `@dicebear/core` at 58 kB instead of 26 kB and `@dicebear/converter` at 8 kB
+  instead of 26 kB, since the converter's browser build pulls its XML
+  dependencies into the bundle. The converter hint also claimed PDF output; the
+  package converts to PNG, JPEG, WebP, and AVIF.
 
-## [4.7.3] - 2021-08-25
-
-### Added
-
-- `dicebear-project` Cli to create new dicebear avatar styles
+## [10.4.0] - 2026-08-01
 
 ### Changed
 
-- `dicebear` Moved cli to mono repository
+- **Styles:** Bumped `@dicebear/styles` to `10.3.0`. The release adds thirteen
+  styles: `blobs`, `clay`, `constellation`, `critters`, `landscape`, `loops`,
+  `moods`, `pixelbot`, `planets`, `sprouts`, `squircles`, `waves`, and `weave`.
+  It also gives `shapes`, `glass`, `thumbs`, `initial-face`, and every new style
+  except `weave` an opt-in `animation` component, which stays off until the
+  `animationVariant` or `tags` render option turns it on.
 
-### Deprecated
-
-- `dicebear` project commands are deprecated. Use new `dicebear-project` cli instead.
-
-## [4.7.2] - 2021-08-05
-
-### Fixed
-
-- `dicebear` Fixed dependency management
-
-## [4.7.1] - 2021-08-02
+## [10.4.0-rc.2] - 2026-07-31
 
 ### Fixed
 
-- `dicebear` missing files in package
+- **Converter:** Raster conversion no longer drops parts of rotated avatars with
+  translucent layers. The resvg build that `resvg-js` bundles places the
+  isolation layer of an `opacity` group in the wrong coordinate space when the
+  group sits under both a `clip-path` and a large rotation, and cuts the group's
+  content. The `waves` style lost about half of its image in every raster
+  format, including through the HTTP API. Since the viewport crops to the canvas
+  anyway, the converter now removes clip paths that cover exactly the canvas
+  before it hands the SVG to resvg. A clip with rounded corners is removed as
+  well and re-applied to the rendered image, so the `radius` option keeps
+  working. Its corners are drawn by sharp instead of resvg as a result, which
+  changes their antialiasing slightly.
 
-## [4.7.0] - 2021-08-02
+## [10.4.0-rc.1] - 2026-07-31
 
 ### Added
 
-- `esm`, `cjs` and `umd` bundles for all packages.
-- New package `@dicebear/collection` to install all official avatar styles at once.
-- New CLI `dicebear` to create avatars and build avatar styles.
+- **Core (all languages):** A new `tags` render option narrows the pool of
+  variants an avatar is drawn from. Styles may label their variants with tags
+  such as `animation` or `hairLength:long`, and the option keeps or drops
+  variants by those labels, so one trait is pinned down while the rest of the
+  avatar stays varied. A token is `category` or `category:value`, with a leading
+  `!` to exclude. An include keeps the variants carrying a matching tag together
+  with those that carry no tag in the category. Several values of one category
+  act as "or", different categories act as "and", and an exclude wins over an
+  include. A bare `category` token requires the category and drops the variants
+  without a tag in it, but only in the components where the category is in use.
+  An unknown category is ignored, an unknown value is not: since nothing matches
+  it, every variant tagged in that category drops out. A per-component
+  `{component}Variant` option is more specific and switches the filter off for
+  that component. If a filter leaves a component without a variant, the
+  component is not drawn. The option takes a string or an array of strings, and
+  in the HTTP API it is the comma-separated `tags` query parameter. Styles that
+  carry no tags are unaffected. In the DiceBear styles, tags currently describe
+  one thing, the opt-in animation of the animated styles, so `tags=animation`
+  turns that animation on at a random speed per seed and `!animation` keeps it
+  off. The character categories follow in a later release.
+- **Docs:** Two guides cover the new option, "Filter Avatar Variants with Tags"
+  for the filter itself and "How DiceBear Tags Variants" for the vocabulary the
+  DiceBear styles use. The playground has a tag panel per category, where every
+  token is an allow/disallow switch, and its count of unique avatars accounts
+  for the filter. Style pages list the tags a style provides and mark every
+  variant preview with its own. The core option reference moved out of the
+  JavaScript page onto a shared "Core options" page that all six library pages
+  link to.
+- **CLI:** Definition files can now be compressed in place with
+  `dicebear ./my-style.json --optimize`. The flag runs the same svgo pass over
+  every element tree that the current Figma exporter applies on export.
+  Hand-authored definitions and files from older exporter versions shrink, by up
+  to 42% (`pixel-art`), while recent exports come back unchanged.
+  `--optimize-check` reports without writing and exits non-zero when the file
+  would change, which makes it usable as a CI gate. `--optimize-precision` sets
+  the float precision for path and transform data (default 3). Color and
+  component references, variables, element ids, CSS classes and `<style>`
+  contents are verified after the pass, and the CLI refuses to write the file
+  when any of them changed.
+
+### Fixed
+
+- **Core (all languages):** The id suffix for `<defs>` entries now hashes the
+  style source name together with the seed. It previously hashed only the seed,
+  so two avatars of different styles with the same seed produced identical ids
+  for shared component names (`body`, `eyes`, `animation`, `clip`, ...) and
+  stole each other's `<defs>` when inlined on one page. Rendered ids change for
+  every avatar as a result.
+- **Core (all languages):** The generator comment now points at
+  `https://www.dicebear.com`. It carried the bare `dicebear.com` host since
+  10.3.0, which only redirects to the canonical `www` host that the `<metadata>`
+  block already used. The byte output of every avatar changes as a result,
+  including data URIs and content hashes, so consumers that compare rendered
+  SVGs against stored snapshots need to update them.
+- **Docs:** In the playground, clicking "None" in a component's variant picker
+  while weights were shown stored an empty weights object, which the core
+  rejects — the preview then rendered no avatar at all. An empty selection is
+  now stored as an empty list, which renders the avatar without that component.
+  Styles that ship non-default weights were affected immediately, because their
+  pickers open in weights mode.
+
+## [10.3.2] - 2026-07-29
+
+### Fixed
+
+- **Converter:** Raster conversion no longer alters text content. The XML round
+  trip that sets the output size trimmed whitespace and converted
+  numeric-looking text, so `<text>0123</text>` rendered as `123` and `1e3` as
+  `1000` in every raster format, including through the HTTP API. Text nodes and
+  CDATA sections now survive the round trip unchanged. Previously the converter
+  unwrapped a CDATA section into raw text, which could turn a valid SVG into
+  ill-formed XML.
+- **Converter:** Raster conversion now accepts SVGs nested deeper than 100
+  elements. The XML parser's default nesting cap made `toPng()` and friends
+  throw on valid documents that resvg renders fine. The cap is now 1024 levels.
+- **Converter:** The converter now reads `mask-type` declarations the way a
+  browser does. It strips a trailing `!important` instead of copying it into the
+  presentation attribute, where resvg would reject the value and silently fall
+  back to `luminance`. It ignores invalid values, and when a `style` attribute
+  repeats the declaration, the last valid one wins.
 
 ### Changed
 
-#### @dicebear/avatars-bottts-sprites
+- **Converter:** `normalizeMaskType()` now works on the parsed XML tree instead
+  of rewriting the markup with regular expressions, and the raster entry points
+  apply it in the same parser pass that sets the output size. Input that needs
+  no fix comes back byte-identical. So does input the XML parser cannot read,
+  where the old version attempted a partial rewrite. When a mask does need
+  fixing, the function re-emits the SVG from the parsed tree, which can
+  normalize formatting details such as quote style or self-closing tags and
+  drops a `<!DOCTYPE>` declaration. The rendered image stays the same.
+- **Converter:** The XML serializer moved from the deprecated `XMLBuilder`
+  export of `fast-xml-parser` to its successor package `fast-xml-builder`. The
+  output is byte-identical. The only visible change for consumers is the new
+  package in the dependency tree.
 
-- No longer uses the deprecated `Color` class.
-
-### Fixed
-
-- Error `ReferenceError: Can't find variable: exports` in svelte. See
-  [#123](https://github.com/dicebear/dicebear/issues/123)
-- File sizes reduced by automatically removing unnecessary whitespaces from template strings.
-
-## [4.6.10] - 2021-07-31
-
-### Fixed
-
-- `@dicebear/avatars-avataaars-sprites` Avataaars clotheGraphics doesn't work #135
-
-## [4.6.10] - 2021-07-31
+## [10.3.1] - 2026-07-27
 
 ### Fixed
 
-- `@dicebear/avatars-avataaars-sprites` Avataaars clotheGraphics doesn't work #135
+- **Converter:** Masks that declare `mask-type: alpha` in a `style` attribute
+  now rasterize correctly. resvg reads `mask-type` only as a presentation
+  attribute, and without one it falls back to the `luminance` default, which
+  turns a mask drawn in black into a mask that hides its subject. Seven styles
+  ship such masks: `bottts-neutral`, `disco`, `glyphs`, `lorelei`, `micah`,
+  `personas` and `toon-head`. On `lorelei` a bearded avatar lost its mouth in
+  the PNG while the SVG rendered fine. The HTTP API converts through this
+  package and was affected the same way. The normalization is also exported as
+  `normalizeMaskType()` for callers that drive resvg directly.
 
-## [4.6.9] - 2021-06-23
-
-### Fixed
-
-- `@dicebear/micah` Fixed `facialHair` / `mouth` contrast #132
-
-## [4.6.8] - 2021-06-23
-
-### Fixed
-
-- Reference error #123
-
-## [4.6.7] - 2021-06-23
-
-### Fixed
-
-- `@dicebear/avatars` Aliases from styles were not noticed
+## [10.3.0] - 2026-06-13
 
 ### Added
 
-- `@dicebear/micah` `eyeShadowColor` option as a better name for `eyeColor` #130
+- **Core:** Every rendered SVG now starts with the generator comment
+  `<!-- Generated by DiceBear (https://dicebear.com) -->` as the first child of
+  the root `<svg>` element. The comment is byte-identical across the JavaScript,
+  PHP, Python, Rust, Go, and Dart libraries. The byte output of every avatar
+  changes as a result, including data URIs and content hashes, so consumers that
+  compare rendered SVGs against stored snapshots need to update them. SVG
+  optimizers that strip comments (e.g. SVGO with default settings) remove it
+  again.
+- **Dart library:** A new Dart implementation (the
+  [`dicebear_core`](https://pub.dev/packages/dicebear_core) package) that
+  produces identical output to the JavaScript library when given the same styles
+  and options. It validates style definitions and options against the shared
+  schemas (via `dicebear_schema`) and pairs with the `dicebear_styles` package.
+- **Core (PHP, Python):** Added `Style::fromJson()` (PHP) and
+  `Style.from_json()` (Python) to build a style from a raw JSON string without a
+  separate `json_decode(..., true)` / `json.loads(...)` call. Malformed JSON
+  raises the language's native parse error (`JsonException` /
+  `json.JSONDecodeError`); an invalid definition raises the usual
+  `StyleValidationError`. Mirrors `Style::from_str` (Rust) and `Style.parse`
+  (Dart); the existing array/dict constructor is unchanged.
 
 ### Deprecated
 
-- `@dicebear/micah` `eyeColor` option => use `eyeShadowColor` instead #130
+- **Core (JS, PHP, Python):** Passing a raw style definition to `Avatar` is
+  deprecated; pass a `Style` instead
+  (`new Avatar(new Style(definition), options)`), which also lets you reuse one
+  parsed style across many avatars. The definition still works for now and
+  renders identically, but emits a deprecation warning (a one-time
+  `console.warn` in JS, `E_USER_DEPRECATED` in PHP, `DeprecationWarning` in
+  Python) and will be removed in v11. The Dart, Rust and Go libraries already
+  require a `Style`, so this brings every port to the same `Avatar(style, …)`
+  call.
 
-## [4.6.6] - 2021-06-23
-
-### Fixed
-
-- `@dicebear/micah` the `dougFunny` hair style is always black #131
-
-## [4.6.5] - 2021-06-22
-
-### Fixed
-
-- `@dicebear/micah` A filter is no longer applied to a color palette with only one color.
-
-## [4.6.4] - 2021-05-16
-
-### Fixed
-
-- `@dicebear/avatars` Regular expressions optimized
-
-## [4.6.3] - 2021-04-23
-
-### Fixed
-
-- `@dicebear/avatars` peer dependency fixed - again
-
-## [4.6.2] - 2021-04-21
-
-### Fixed
-
-- `@dicebear/avatars` peer dependency fixed
-
-## [4.6.1] - 2021-04-20
-
-No notable changes.
-
-## [4.6.0] - 2021-04-18
+## [10.2.0] - 2026-06-10
 
 ### Added
 
-- New API based on functions instead of classes in preparation for version 5.0
+- **Go library:** A new Go implementation (the
+  `github.com/dicebear/dicebear-go/v10` module) that produces identical output
+  to the JavaScript library when given the same styles and options.
 
-  Old API
+### Fixed
 
-  ```js
-  import Avatars from `@dicebear/avatars`;
-  import style from `@dicebear/avatars-identicon-sprites`;
+- **Core:** `Color.luminance()` now derives the sRGB linearization from a
+  precomputed lookup table (one entry per 8-bit channel value) instead of
+  calling `pow` at runtime. `pow` is not required to be correctly rounded and
+  produced last-ULP differences between JS engines (V8 vs. others), the C math
+  library (PHP, Python, Rust), and Go's pure-Go implementation, so luminance
+  values, and in contrived cases contrast-based color ordering, could diverge
+  across languages and even across browsers. The table holds the values the
+  JavaScript reference produces today, so JavaScript output is unchanged; the
+  other libraries move by at most one ULP. The Go library additionally forces
+  intermediate rounding in the weighted sum, which the compiler could otherwise
+  fuse into FMA instructions on arm64. Rendered SVGs are unaffected.
+- **Core (PHP):** `Avatar::toDataUri()` now percent-encodes exactly like
+  JavaScript's `encodeURIComponent`. Previously the PHP library used plain
+  `rawurlencode`, which additionally escapes `!*'()`, characters that occur in
+  every rendered SVG (e.g. `url(#…)` references and `translate(…)` transforms),
+  so the data URI diverged byte-wise from the JavaScript, Python, Rust, and Go
+  libraries. The decoded SVG was unaffected.
+- **Core (JS):** The `initial` style variable now resolves to the full first
+  code point of the initials. Previously the JavaScript library emitted a lone
+  UTF-16 surrogate (ill-formed XML) when the initials started with a character
+  outside the Basic Multilingual Plane (e.g. an emoji). The PHP, Python, Rust,
+  and Go libraries already returned the full character; all libraries are now
+  byte-identical for such seeds.
+- **Core (Rust):** `Avatar.to_json()` now records `size` before `title` in the
+  resolved-options snapshot, matching the JavaScript, PHP, and Python libraries.
+  The rendered SVG was unaffected; only consumers comparing or hashing the
+  serialized options JSON across languages were affected.
+- **Core (Python):** `Avatar.to_json()` now serializes whole-number floats in
+  the resolved-options snapshot as integers (`1`, not `1.0`), matching the
+  JavaScript, Rust, and PHP libraries. Previously snapshot values such as
+  `scale`, `rotate`, `translateX`/`translateY`, `borderRadius`, color angles,
+  and per-component transforms were emitted as `1.0`/`0.0`, so the serialized
+  JSON diverged from the other ports. The rendered SVG was unaffected. The
+  values were already numerically equal, so only consumers comparing or hashing
+  the serialized options JSON across languages were affected.
 
-  let options = {};
-  let seed = 'custom-seed';
-  let avatars = new Avatars(style, options);
-  let svg = avatars.create(seed);
-  ```
+## [10.2.0-rc.1] - 2026-06-07
 
-  New API
+### Added
 
-  ```js
-  import { createAvatar } from `@dicebear/avatars`;
-  import * as style from `@dicebear/avatars-identicon-sprites`;
+- **Rust library:** A new Rust implementation (the `dicebear-core` crate) that
+  produces identical output to the JavaScript library when given the same styles
+  and options.
 
-  let svg = createAvatar(style, {
-    seed: 'custom-seed',
-    // ... and other options
-  });
-  ```
+### Fixed
 
-- JSON Schema added to each avatar style. Used for API, Types and upcoming features.
+- **Core:** Initials now discard everything from the first `@` to the end of the
+  seed (e.g. an email domain). Previously the strip stopped at the first line
+  terminator (at a line feed in PHP and Python, and additionally at a carriage
+  return or `U+2028`/`U+2029` in JavaScript), so a seed with a line break after
+  the `@` kept the trailing text as a second word, and the libraries could even
+  diverge from each other. All language libraries now produce byte-identical
+  initials for such seeds.
 
-- Metadata in generated avatars with author and license information.
-
-#### @dicebear/avatars
-
-- New Option `backgroundColor`
-
-#### @dicebear/micah
-
-- New avatar style based on the "Avatar Illustration System" by Micah Lanier.  
-  https://www.figma.com/community/file/829741575478342595
-
-#### @dicebear/avatars-avataaars-sprites
-
-- New option values for `accessoriesColor`, `clotheColor` and `hatColor`:
-
-  - `blue01`
-  - `blue02`
-  - `blue03`
-  - `gray01`
-  - `gray02`
-  - `pastelBlue`
-  - `pastelGreen`
-  - `pastelOrange`
-  - `pastelRed`
-  - `pastelYellow`
-
-- New option `clotheGraphic`
-
-- New option values for `clothes`:
-
-  - `blazerAndShirt`
-  - `blazerAndSweater`
-  - `collarAndSweater`
-  - `graphicShirt`
-  - `shirtCrewNeck`
-  - `shirtScoopNeck`
-  - `shirtVNeck`
-
-- New option values for `eyebrows`:
-
-  - `angryNatural`
-  - `defaultNatural`
-  - `flatNatural`
-  - `raisedExcited`
-  - `raisedExcitedNatural`
-  - `sadConcerned`
-  - `sadConcernedNatural`
-  - `unibrowNatural`
-  - `upDown`
-  - `upDownNatural`
-  - `frownNatural`
-
-- New option values for `eyes`:
-
-  - `closed`
-  - `xDizzy`
-  - `eyeRoll`
-
-- New option values for `facialHairColor` and `hairColor`:
-
-  - `blondeGolden`
-  - `brownDark`
-  - `pastelPink`
-  - `silverGray`
-
-- New option values for `facialHair`:
-
-  - `beardMedium`
-  - `beardLight`
-  - `beardMagestic`
-  - `moustaceFancy`
-  - `moustacheMagnum`
-
-- New option values for `mouth`:
-
-  - `screamOpen`
-
-- New option values for `top`:
-
-  - `bigHair`
-  - `bob`
-  - `bun`
-  - `curly`
-  - `curvy`
-  - `dreads`
-  - `frida`
-  - `fro`
-  - `froAndBand`
-  - `miaWallace`
-  - `longButNotTooLong`
-  - `shavedSides`
-  - `straight01`
-  - `straight02`
-  - `straightAndStrand`
-  - `dreads01`
-  - `dreads02`
-  - `frizzle`
-  - `shaggy`
-  - `shaggyMullet`
-  - `shortCurly`
-  - `shortFlat`
-  - `shortRound`
-  - `shortWaved`
-  - `sides`
-  - `theCaesar`
-  - `theCaesarAndSidePart`
-  - `hat`
-  - `winterHat01`
-  - `winterHat02`
-  - `winterHat03`
-  - `winterHat04`
+## [10.1.0] - 2026-06-06
 
 ### Changed
 
-- Dependency `svgson` updated to version 5.2
-- Removed style `isolation:isolate` in all avatar styles
+- **Schema:** Bumped the bundled `@dicebear/schema` to `1.1.0` across the
+  JavaScript, PHP, and Python libraries. It adds an upper bound of `1000000` to
+  the canvas and component `width`/`height`, preventing the language ports'
+  number-to-string formatting from diverging at extreme values. Official styles
+  use ~100, so no real avatar is affected.
+- **Styles:** Bumped `@dicebear/styles` to `10.1.0`. Lorelei's mouth is now
+  visible through `beard` variants (the overlaying mask was previously rendered
+  at `0` opacity), and all style definitions now reference
+  `@dicebear/schema@1.1.0`.
 
-### Deprecated
+## [10.1.0-rc.1] - 2026-06-02
 
-- Default exports are deprecated. Use new function based API instead. (See "Added")
+### Added
 
-#### @dicebear/avatars
+- **Python library:** A new Python implementation that produces identical output
+  to the JavaScript library when given the same styles and options.
 
-- Color class is deprecated and will be removed with version 5.0.
-- Parser class is deprecated and will be removed with version 5.0.
-- Option `background` is deprecated. Use `backgroundColor` instead.
+## [10.0.2] - 2026-06-02
 
-#### @dicebear/avatars-avataaars-sprites
+### Fixed
 
-- Some `accessoriesColor` and `clotheColor` values are deprecated:
+- **Core:** Numeric values in rendered SVGs are now consistently rounded to at
+  most 5 decimal places, so the JavaScript and PHP libraries produce
+  byte-identical output for every input. Previously, fractional or very
+  small/large values (e.g. a fractional `borderRadius` or `translateX`,
+  component transforms, or gradient stop offsets) could be stringified
+  differently between languages (scientific notation, differing precision).
+  Avatars built from whole-number options are unaffected.
+- **Core (PHP):** `Prng::float` now rounds halves toward +Infinity (matching the
+  JavaScript reference's `Math.round`) instead of PHP's native `round()`, which
+  rounds halves away from zero. The two diverged for negative values landing
+  exactly on a `.5` boundary, so a PHP-rendered avatar could differ from the
+  JavaScript one by `0.0001` in a rotate/translate transform or color angle for
+  certain seeds. Output is now byte-identical across languages.
+- **Core (PHP):** Initials are now derived correctly from seeds containing
+  multibyte letters such as `ü` or `ô`. The quote-stripping step was missing the
+  `/u` (Unicode) flag, so it removed raw UTF-8 bytes and corrupted those
+  letters: e.g. `über` and `côté` produced wrong or empty initials instead of
+  `ÜB` / `CÔ`. The PHP output now matches the JavaScript reference.
+- **Core:** Range options (`scale`, `borderRadius`, `rotate`,
+  `translateX`/`translateY`, and per-color angle/fill-stops) given as a
+  single-element array `[n]` are now treated as the fixed value `n` (identical
+  to the scalar `n`), and an empty array `[]` falls back to the option's
+  default. Both forms are permitted by the schema. Previously the behavior
+  diverged: the JavaScript library emitted `NaN` (e.g. `scale(NaN)`), while PHP
+  dropped `[n]` to the default. All three now agree.
 
-  - `blue` => use `blue01`, `blue02` and `blue03` instead
-  - `gray` => use `gray01` and `gray02` instead
-  - `pastel` => use `pastelBlue`, `pastelGreen`, `pastelOrange`, `pastelRed` and `pastelYellow` instead
+## [10.0.1] - 2026-05-29
 
-- Some `clothes` values are deprecated:
+### Fixed
 
-  - `blazer` => use `blazerAndShirt` and `blazerAndSweater` instead
-  - `sweater` => use `collarAndSweater` instead
-  - `shirt` => use `graphicShirt`, `shirtCrewNeck`, `shirtScoopNeck` and `shirtVNeck` instead
+- **CLI:** `dicebear --version` and `dicebear --help` no longer fail by trying
+  to read a file named `--version`/`--help`. The definition path is now resolved
+  via the argument parser, so flags (and the values they consume) before the
+  path are handled correctly, e.g. `dicebear --json my-style.json` and
+  `dicebear --count 2 my-style.json`.
 
-- Some `eyebrow` values are deprecated:
+## [10.0.0] - 2026-05-27
 
-  - `flat` => use `flatNatural` instead
-  - `raised` => use `raisedExcited` and `raisedExcitedNatural` instead
-  - `sad` => use `sadConcerned` and `sadConcernedNatural` instead
-  - `unibrow` => use `unibrowNatural` instead
-  - `up` => use `upDown` and `upDownNatural` instead
-  - `frown` => use `frownNatural` instead
+See the
+[v10.0.0 release notes](https://github.com/dicebear/dicebear/releases/tag/v10.0.0).
 
-- Some `eyes` values are deprecated:
+### Added
 
-  - `close` => use `closed` instead
-  - `dizzy` => use `xDizzy` instead
-  - `roll` => use `eyeRoll` instead
+- **6 new avatar styles:** Disco, Glyphs, Initial Face, Shape Grid, Stripes, and
+  Triangles.
+- **PHP library:** A new PHP implementation that produces identical output to
+  the JavaScript library when given the same styles and options.
+- **CLI support for custom styles:** Generate avatars from a JSON style
+  definition, e.g. `dicebear ./path/to/style.json --seed test --format svg`.
+- **Weighted variants:** Assign weights to component variants to control how
+  frequently each appears.
+- **Gradient support:** Colors can be defined as gradients, including an angle
+  parameter.
+- **Integrated validation:** Built-in validation for avatar styles and options.
+- **Redesigned playground:** Adjust options, upload custom styles, batch
+  download avatars, and view the number of possible combinations.
+- **New tools:** WCAG Contrast Picker and Bundle Size Estimator.
+- Reorganized and improved documentation, with better style docs and component
+  previews.
 
-- Some `facialHairColor` and `hairColor` values are deprecated:
+### Changed
 
-  - `pastel` => use `pastelPink` instead
-  - `gray` => use `silverGray` instead
-
-- Some `facialHair` values are deprecated:
-
-  - `medium` => use `beardMedium` instead
-  - `light` => use `beardLight` instead
-  - `majestic` => use `beardMajestic` instead
-  - `fancy` => use `moustaceFancy` instead
-  - `magnum` => use `moustacheMagnum` instead
-
-- Some `mouth` values are deprecated:
-
-  - `scream` => use `screamOpen` instead
-
-- Option `mode` is deprecated.
-
-- Some `top` values are deprecated:
-
-  - `longHair` => use `bigHair`, `bob`, `bun`, `curly`, `curvy`, `dreads`, `frida`, `fro`, `froAndBand`, `miaWallace`,
-    `longButNotTooLong`, `shavedSides`, `straight01`, `straight02` and `straightAndStrand` instead
-  - `shortHair` => use
-    `dreads01`,`dreads02`,`frizzle`,`shaggy`,`shaggyMullet`,`shortCurly`,`shortFlat`,`shortRound`,`shortWaved`,`sides`,`theCaesar`
-    and `theCaesarAndSidePart` instead
-
-#### @dicebear/avatars-gridy-sprites
-
-- Change `deterministic` default to `true`.
+- Each avatar style is now stored as a JSON definition file instead of
+  JavaScript code, separating licensing concerns from implementation.
+- Styles are now distributed via `@dicebear/styles` as JSON definitions.
+- The JavaScript API now uses `Style` and `Avatar` classes together with
+  definition imports.
+- **BREAKING:** Component options are now suffixed with `Variant` (e.g.
+  `eyesVariant` instead of `eyes`).
 
 ### Removed
 
-#### @dicebear/avatars
+- **BREAKING:** Individual style packages (e.g. `@dicebear/initials`) have been
+  removed in favor of `@dicebear/styles`.
 
-- Removed unused webpack build. We will completely switch to microbundle with version 5 and also support CDNs like
-  unpkg.
-
-## [4.5.4] - 2021-02-24
-
-### Fixed
-
-- `@dicebear/avatars` Type for `b` option.
-
-## [4.5.3] - 2021-01-25
-
-### Fixed
-
-- `@dicebear/avatars-avataaars-sprites` Removed unnecessary white background.
-
-## [4.5.2] - 2020-12-14
-
-### Fixed
-
-- `@dicebear/avatars-avataaars-sprites` Background color was not used
-
-## [4.5.1] - 2020-12-07
-
-### Fixed
-
-- `@dicebear/avatars` Randomness increased in new PRNG implementation
-
-## [4.5.0] - 2020-12-06
-
-### Added
-
-- `@dicebear/avatars` Option `dataUri` as replacement for `base64`.
-
-### Changed
-
-- `@dicebear/avatars` Package `seedrandom` replaced with own PRNG implementation.
-
-### Deprecated
-
-- `@dicebear/avatars` Option `base64` is now deprecated. Use `dataUri` instead.
-
-## [4.4.1] - 2020-11-21
-
-### Removed
-
-- `@dicebear/avatars-avataaars-sprites` Graphic shirt "selena"
-
-## [4.4.0] - 2020-11-11
-
-### Added
-
-- `@dicebear/avatars-avataaars-sprites` New option values for `facialHair`: `pastel` and `gray`
-- `@dicebear/avatars-avataaars-sprites` New option value for `eyebrow`: `frown`
-- `@dicebear/avatars-avataaars-sprites` New option `accessoriesColor`
-
-### Changed
-
-- `@dicebear/avatars-avataaars-sprites` Completely rewritten to remove the `react`, `react-dom` and `avataaars`
-  dependencies. Solves [#48](https://github.com/DiceBear/avatars/issues/48).
-
-## [4.3.0] - 2020-11-06
-
-### Fixed
-
-- Text position was wrong in `@dicebear/avatars-initials-sprites` when a font size was specified.
-
-### Removed
-
-- Code sprites are no longer supported. Too CPU intensive for the HTTP API and does not fit into the future vision of
-  the next major release. Use [qr-image](https://www.npmjs.com/package/qr-image) directly instead.
-
-## [4.2.4] - 2020-07-22
-
-### Fixed
-
-- Types for array options in `avatars-avataaars-sprites`
-
-## [4.2.2] - 2020-07-21
-
-### Fixed
-
-- Type for `topChance` in `avatars-avataaars-sprites`
-
-## [4.2.1] - 2020-06-20
-
-### Changed
-
-- Renamed default branch to `v4`.
-
-## [4.2.0] - 2020-05-26
-
-### Changed
-
-- [#73][7] Update seedrandom package to 3.0.5
-
-[7]: https://github.com/DiceBear/avatars/pull/73
-
-## [4.1.1] - 2020-05-14
-
-### Changed
-
-- New API Path. `/api/` instead of `/v2/`
-
-### Fixed
-
-- `initials` more precisely centered
-- `avataaars` Background Color
-
-## [4.1.0] - 2020-05-09
-
-### Added
-
-- [#55][1] Aliases for `width`, `height`, `radius`, `background` and `margin`, to keep the URLs of the HTTP API shorter
-- [#66][5] `deterministic` for `gridy` avatars. (thanks to @elierotenberg)
-- This changelog
-
-### Changed
-
-- [#55][1] Parameter key for the HTTP API flattened. It is now no longer necessary to nest the values in an `options`
-  object.
-- [#61][6] Update `topChange` to `topChance`, clarify some documentation (thanks to @pennstatephil)
-- [Configurator][2] now always generates the smallest possible HTTP-API URL.
-- Reorganized dependencies in the repository.
-- Stackpath CDN configured for HTTP API. Saves 90% traffic to Cloudflare Workers and therefore also unnecessary costs.
-  Unfortunately makes the initial call a bit slower.
-
-### Fixed
-
-- [#69][3] Initial avatars were displayed incorrectly in Firefox. Same solution implemented for all browsers.
-- [#58][4] Value `0` did not work for chance options in `bottts`.
-
-### Removed
-
-- `bowser` dependency in initials avatars.
-
-[1]: https://github.com/DiceBear/avatars/issues/55
-[2]: https://dicebear.com
-[3]: https://github.com/DiceBear/avatars/issues/69
-[4]: https://github.com/DiceBear/avatars/issues/58
-[5]: https://github.com/DiceBear/avatars/pull/66
-[6]: https://github.com/DiceBear/avatars/pull/61
+[Unreleased]: https://github.com/dicebear/dicebear/compare/v10.7.0...HEAD
+[10.7.0]: https://github.com/dicebear/dicebear/compare/v10.7.0-rc.1...v10.7.0
+[10.7.0-rc.1]:
+  https://github.com/dicebear/dicebear/compare/v10.6.1...v10.7.0-rc.1
+[10.6.1]: https://github.com/dicebear/dicebear/compare/v10.6.0...v10.6.1
+[10.6.0]: https://github.com/dicebear/dicebear/compare/v10.5.0...v10.6.0
+[10.5.0]: https://github.com/dicebear/dicebear/compare/v10.4.0...v10.5.0
+[10.4.0]: https://github.com/dicebear/dicebear/compare/v10.4.0-rc.2...v10.4.0
+[10.4.0-rc.2]:
+  https://github.com/dicebear/dicebear/compare/v10.4.0-rc.1...v10.4.0-rc.2
+[10.4.0-rc.1]:
+  https://github.com/dicebear/dicebear/compare/v10.3.2...v10.4.0-rc.1
+[10.3.2]: https://github.com/dicebear/dicebear/compare/v10.3.1...v10.3.2
+[10.3.1]: https://github.com/dicebear/dicebear/compare/v10.3.0...v10.3.1
+[10.3.0]: https://github.com/dicebear/dicebear/compare/v10.2.0...v10.3.0
+[10.2.0]: https://github.com/dicebear/dicebear/compare/v10.2.0-rc.1...v10.2.0
+[10.2.0-rc.1]:
+  https://github.com/dicebear/dicebear/compare/v10.1.0...v10.2.0-rc.1
+[10.1.0]: https://github.com/dicebear/dicebear/compare/v10.1.0-rc.1...v10.1.0
+[10.1.0-rc.1]:
+  https://github.com/dicebear/dicebear/compare/v10.0.2...v10.1.0-rc.1
+[10.0.2]: https://github.com/dicebear/dicebear/compare/v10.0.1...v10.0.2
+[10.0.1]: https://github.com/dicebear/dicebear/compare/v10.0.0...v10.0.1
+[10.0.0]: https://github.com/dicebear/dicebear/releases/tag/v10.0.0

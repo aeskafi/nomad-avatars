@@ -1,0 +1,416 @@
+{
+  "seed": {
+    "type": "string"
+  },
+  "size": {
+    "type": "number",
+    "min": 1,
+    "max": 4096
+  },
+  "idRandomization": {
+    "type": "boolean"
+  },
+  "title": {
+    "type": "string"
+  },
+  "flip": {
+    "type": "enum",
+    "values": [
+      "none",
+      "horizontal",
+      "vertical",
+      "both"
+    ],
+    "list": true
+  },
+  "fontFamily": {
+    "type": "string",
+    "list": true
+  },
+  "fontWeight": {
+    "type": "number",
+    "min": 1,
+    "max": 1000,
+    "list": true
+  },
+  "scale": {
+    "type": "range",
+    "min": 0,
+    "max": 10
+  },
+  "borderRadius": {
+    "type": "range",
+    "min": 0,
+    "max": 50
+  },
+  "rotate": {
+    "type": "range",
+    "min": -360,
+    "max": 360
+  },
+  "translateX": {
+    "type": "range",
+    "min": -1000,
+    "max": 1000
+  },
+  "translateY": {
+    "type": "range",
+    "min": -1000,
+    "max": 1000
+  },
+  "beardVariant": {
+    "type": "enum",
+    "values": [
+      "variant01",
+      "variant02",
+      "variant03",
+      "variant04",
+      "variant05",
+      "variant06",
+      "variant07",
+      "variant08",
+      "variant09",
+      "variant10",
+      "variant11",
+      "variant12"
+    ],
+    "list": true,
+    "weighted": true
+  },
+  "beardProbability": {
+    "type": "number",
+    "min": 0,
+    "max": 100
+  },
+  "clothesVariant": {
+    "type": "enum",
+    "values": [
+      "variant01",
+      "variant02",
+      "variant03",
+      "variant04",
+      "variant05",
+      "variant06",
+      "variant07",
+      "variant08",
+      "variant09",
+      "variant10",
+      "variant11",
+      "variant12",
+      "variant13",
+      "variant14",
+      "variant15",
+      "variant16",
+      "variant17",
+      "variant18",
+      "variant19",
+      "variant20",
+      "variant21",
+      "variant22",
+      "variant23",
+      "variant24",
+      "variant25"
+    ],
+    "list": true,
+    "weighted": true
+  },
+  "clothesProbability": {
+    "type": "number",
+    "min": 0,
+    "max": 100
+  },
+  "clothesGraphicVariant": {
+    "type": "enum",
+    "values": [
+      "electric",
+      "galaxy",
+      "saturn"
+    ],
+    "list": true,
+    "weighted": true
+  },
+  "clothesGraphicProbability": {
+    "type": "number",
+    "min": 0,
+    "max": 100
+  },
+  "eyebrowsVariant": {
+    "type": "enum",
+    "values": [
+      "variant01",
+      "variant02",
+      "variant03",
+      "variant04",
+      "variant05",
+      "variant06",
+      "variant07",
+      "variant08",
+      "variant09",
+      "variant10",
+      "variant11",
+      "variant12",
+      "variant13"
+    ],
+    "list": true,
+    "weighted": true
+  },
+  "eyebrowsProbability": {
+    "type": "number",
+    "min": 0,
+    "max": 100
+  },
+  "eyesVariant": {
+    "type": "enum",
+    "values": [
+      "variant01",
+      "variant02",
+      "variant03",
+      "variant04",
+      "variant05"
+    ],
+    "list": true,
+    "weighted": true
+  },
+  "eyesProbability": {
+    "type": "number",
+    "min": 0,
+    "max": 100
+  },
+  "gestureVariant": {
+    "type": "enum",
+    "values": [
+      "hand",
+      "handPhone",
+      "ok",
+      "okLongArm",
+      "point",
+      "pointLongArm",
+      "waveLongArm",
+      "waveLongArms",
+      "waveOkLongArms",
+      "wavePointLongArms"
+    ],
+    "list": true,
+    "weighted": true
+  },
+  "gestureProbability": {
+    "type": "number",
+    "min": 0,
+    "max": 100
+  },
+  "glassesVariant": {
+    "type": "enum",
+    "values": [
+      "variant01",
+      "variant02",
+      "variant03",
+      "variant04",
+      "variant05",
+      "variant06",
+      "variant07",
+      "variant08",
+      "variant09",
+      "variant10",
+      "variant11"
+    ],
+    "list": true,
+    "weighted": true
+  },
+  "glassesProbability": {
+    "type": "number",
+    "min": 0,
+    "max": 100
+  },
+  "hairVariant": {
+    "type": "enum",
+    "values": [
+      "hat",
+      "variant01",
+      "variant02",
+      "variant03",
+      "variant04",
+      "variant05",
+      "variant06",
+      "variant07",
+      "variant08",
+      "variant09",
+      "variant10",
+      "variant11",
+      "variant12",
+      "variant13",
+      "variant14",
+      "variant15",
+      "variant16",
+      "variant17",
+      "variant18",
+      "variant19",
+      "variant20",
+      "variant21",
+      "variant22",
+      "variant23",
+      "variant24",
+      "variant25",
+      "variant26",
+      "variant27",
+      "variant28",
+      "variant29",
+      "variant30",
+      "variant31",
+      "variant32",
+      "variant33",
+      "variant34",
+      "variant35",
+      "variant36",
+      "variant37",
+      "variant38",
+      "variant39",
+      "variant40",
+      "variant41",
+      "variant42",
+      "variant43",
+      "variant44",
+      "variant45",
+      "variant46",
+      "variant47",
+      "variant48",
+      "variant49",
+      "variant50",
+      "variant51",
+      "variant52",
+      "variant53",
+      "variant54",
+      "variant55",
+      "variant56",
+      "variant57",
+      "variant58",
+      "variant59",
+      "variant60",
+      "variant61",
+      "variant62",
+      "variant63"
+    ],
+    "list": true,
+    "weighted": true
+  },
+  "hairProbability": {
+    "type": "number",
+    "min": 0,
+    "max": 100
+  },
+  "headVariant": {
+    "type": "enum",
+    "values": [
+      "variant01"
+    ],
+    "list": true,
+    "weighted": true
+  },
+  "headProbability": {
+    "type": "number",
+    "min": 0,
+    "max": 100
+  },
+  "mouthVariant": {
+    "type": "enum",
+    "values": [
+      "variant01",
+      "variant02",
+      "variant03",
+      "variant04",
+      "variant05",
+      "variant06",
+      "variant07",
+      "variant08",
+      "variant09",
+      "variant10",
+      "variant11",
+      "variant12",
+      "variant13",
+      "variant14",
+      "variant15",
+      "variant16",
+      "variant17",
+      "variant18",
+      "variant19",
+      "variant20",
+      "variant21",
+      "variant22",
+      "variant23",
+      "variant24",
+      "variant25",
+      "variant26",
+      "variant27",
+      "variant28",
+      "variant29",
+      "variant30"
+    ],
+    "list": true,
+    "weighted": true
+  },
+  "mouthProbability": {
+    "type": "number",
+    "min": 0,
+    "max": 100
+  },
+  "noseVariant": {
+    "type": "enum",
+    "values": [
+      "variant01",
+      "variant02",
+      "variant03",
+      "variant04",
+      "variant05",
+      "variant06",
+      "variant07",
+      "variant08",
+      "variant09",
+      "variant10",
+      "variant11",
+      "variant12",
+      "variant13",
+      "variant14",
+      "variant15",
+      "variant16",
+      "variant17",
+      "variant18",
+      "variant19",
+      "variant20"
+    ],
+    "list": true,
+    "weighted": true
+  },
+  "noseProbability": {
+    "type": "number",
+    "min": 0,
+    "max": 100
+  },
+  "backgroundColor": {
+    "type": "color",
+    "list": true
+  },
+  "backgroundColorFill": {
+    "type": "enum",
+    "values": [
+      "solid",
+      "linear",
+      "radial"
+    ],
+    "list": true
+  },
+  "backgroundColorFillStops": {
+    "type": "range",
+    "min": 2
+  },
+  "backgroundColorAngle": {
+    "type": "range",
+    "min": -360,
+    "max": 360
+  },
+  "backgroundColorOrder": {
+    "type": "enum",
+    "values": [
+      "random",
+      "fixed"
+    ]
+  }
+}

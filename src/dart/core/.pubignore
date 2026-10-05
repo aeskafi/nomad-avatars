@@ -1,0 +1,15 @@
+# A .pubignore replaces this directory's .gitignore for `dart pub publish`.
+# Unlike dicebear_schema/dicebear_styles, lib/ here is real committed code, so
+# the allowlist trick those packages use is not needed; this file only trims
+# the published archive.
+.dart_tool/
+pubspec.lock
+
+# The tests read the cross-language parity fixtures from
+# ../../../tests/fixtures/parity, which does not exist in the published
+# package.
+test/
+
+# Development-only: regenerates the embedded web fixtures from the monorepo's
+# parity fixtures, which the published package does not carry.
+tool/

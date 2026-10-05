@@ -2,30 +2,200 @@ name: Publish
 
 on:
   push:
-    tags-ignore:
-      - v*-alpha.*
-      - v*-beta.*
-      - v*-rc.*
+    tags:
+      - 'v*'
+
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
 
 jobs:
+  test:
+    uses: dicebear/dicebear/.github/workflows/test.yml@10.x
+
   publish:
-    name: Publish Packages
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v6
         with:
-          node-version: '14'
+          node-version: 24
           registry-url: 'https://registry.npmjs.org'
 
-      - run: yarn install
-      - run: yarn build
-      - run: yarn test
+      - run: npm ci
+      - run: npx turbo run build --filter='!@dicebear/docs' --filter='!@dicebear/editor'
 
-      - run: ./node_modules/.bin/lerna publish from-package --no-verify-access --ignore-scripts --yes
+      - name: Determine dist tag
+        shell: bash
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          if [[ "$TAG" =~ -(alpha|beta|rc)\. ]]; then
+            echo "DIST_TAG=next" >> $GITHUB_ENV
+          else
+            # No --depth here: a shallow fetch cuts the branch history and
+            # makes the ancestor check below fail for any tag that is not
+            # the branch tip (10.5.0 landed on npm as v10-lts because of it).
+            git fetch origin "$DEFAULT_BRANCH"
+            if git merge-base --is-ancestor "$GITHUB_SHA" "origin/$DEFAULT_BRANCH"; then
+              echo "DIST_TAG=latest" >> $GITHUB_ENV
+            else
+              MAJOR=$(echo "$TAG" | sed 's/^v//' | cut -d. -f1)
+              echo "DIST_TAG=v${MAJOR}-lts" >> $GITHUB_ENV
+            fi
+          fi
+
+      - run: node scripts/publish.mjs "$DIST_TAG"
+
+  publish-python:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Build dicebear-core
+        working-directory: src/python/core
+        run: |
+          python -m pip install --upgrade build
+          python -m build
+
+      # Trusted Publishing (OIDC) — no token. Configure the publisher on PyPI:
+      # project dicebear-core, repo dicebear/dicebear, workflow publish.yml.
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: src/python/core/dist/
+
+  publish-rust:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Verify the crate compiles
+        working-directory: src/rust/core
+        run: cargo check --all-features
+
+      # Trusted Publishing (OIDC) — no token. Configure the publisher on
+      # crates.io: crate dicebear-core, repo dicebear/dicebear, workflow
+      # publish.yml.
+      - name: Authenticate to crates.io
+        id: auth
+        uses: rust-lang/crates-io-auth-action@v1.0.4
+
+      - name: Publish to crates.io
+        working-directory: src/rust/core
+        run: cargo publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
+
+  publish-pub:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: dart-lang/setup-dart@v1
+
+      # Automated publishing (OIDC via setup-dart, no stored token). Configure
+      # on pub.dev: package dicebear_core, repository dicebear/dicebear, tag
+      # pattern v{{version}}. Unlike the Go and PHP ports, pub.dev publishes
+      # straight from the monorepo subdirectory — no split repository.
+      - name: Copy the project changelog into the package
+        # CHANGELOG.md inside the package is a git-ignored build artifact:
+        # pub.dev expects it in the package directory, while the repository
+        # maintains a single changelog at the root.
+        run: cp CHANGELOG.md src/dart/core/CHANGELOG.md
+      # The first release is published manually (pub.dev's automated-publishing
+      # settings only exist once the package does), so skip cleanly when the
+      # pubspec version is already live. This also makes re-runs of the
+      # workflow safe.
+      - name: Check whether this version is already on pub.dev
+        id: pub-version
+        working-directory: src/dart/core
+        run: |
+          VERSION=$(sed -n 's/^version: //p' pubspec.yaml)
+          if curl -fsSL https://pub.dev/api/packages/dicebear_core \
+            | jq -e --arg v "$VERSION" '.versions[] | select(.version == $v)' \
+            > /dev/null; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish to pub.dev
+        if: steps.pub-version.outputs.exists == 'false'
+        working-directory: src/dart/core
+        run: dart pub publish --force
+
+  publish-nuget:
+    needs: test
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read # actions/checkout
+      id-token: write # Trusted Publishing to NuGet.org (OIDC, no stored token)
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # Trusted publishing (OIDC, no stored token). Configure on nuget.org: a
+      # trusted publishing policy for package DiceBear.Core, repository
+      # dicebear/dicebear and this workflow. Like pub.dev and crates.io, NuGet
+      # publishes straight from the monorepo subdirectory — no split repository.
+      - name: Pack
+        working-directory: src/csharp/core
+        run: dotnet pack --configuration Release --output ../../../dist-nuget
+
+      # The first release is published manually (nuget.org's trusted-publishing
+      # settings only exist once the package does), so skip cleanly when the
+      # csproj version is already live. This also makes re-runs of the workflow
+      # safe.
+      - name: Check whether this version is already on NuGet
+        id: nuget-version
+        run: |
+          VERSION=$(sed -n 's/.*<Version>\(.*\)<\/Version>.*/\1/p' \
+            src/csharp/core/DiceBear.Core.csproj)
+          if curl -fsSL https://api.nuget.org/v3-flatcontainer/dicebear.core/index.json \
+            | jq -e --arg v "$VERSION" '.versions[] | select(. == $v)' \
+            > /dev/null; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Authenticate to NuGet.org
+        if: steps.nuget-version.outputs.exists == 'false'
+        id: login
+        uses: NuGet/login@v1
+        with:
+          # The NuGet.org account that created the trusted publishing policy,
+          # not the organization that owns the package. Passing the owner fails
+          # the token exchange with a 401.
+          user: FlorianKoerner
+
+      - name: Publish to NuGet
+        if: steps.nuget-version.outputs.exists == 'false'
+        run: |
+          dotnet nuget push "dist-nuget/*.nupkg" \
+            --source https://api.nuget.org/v3/index.json \
+            --api-key "${{ steps.login.outputs.NUGET_API_KEY }}"

@@ -1,0 +1,34 @@
+{
+  "name": "dicebear/core",
+  "description": "Unique avatars from dozens of styles — deterministic, customizable, vector-based.",
+  "type": "library",
+  "license": "MIT",
+  "keywords": [
+    "dicebear",
+    "avatar",
+    "svg"
+  ],
+  "require": {
+    "php": ">=8.2",
+    "ext-mbstring": "*",
+    "opis/json-schema": "^2.6",
+    "dicebear/schema": "^1.5.1"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^11.0",
+    "phpstan/phpstan": "^2.0",
+    "friendsofphp/php-cs-fixer": "^3.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "DiceBear\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "DiceBear\\Tests\\": "tests/"
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}

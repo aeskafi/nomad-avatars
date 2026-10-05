@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "strict": true,
+    "jsx": "preserve",
+    "types": [],
+    "paths": {
+      "@theme/*": ["./.vitepress/theme/*"],
+      "@playground/*": ["./.vitepress/theme/components/playground/*"]
+    },
+    "skipLibCheck": true
+  },
+  "include": ["env.d.ts", ".vitepress/**/*", "scripts/**/*"],
+  "exclude": [".vitepress/cache", ".vitepress/dist"]
+}

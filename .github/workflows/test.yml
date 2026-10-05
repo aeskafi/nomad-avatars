@@ -2,25 +2,306 @@ name: Test
 
 on:
   push:
-    branches: [main]
+    branches:
+      - '*.x'
   pull_request:
-    branches: [main]
+    branches:
+      - '*.x'
+  workflow_call: {}
 
 jobs:
-  test:
+  test-js:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [14.x, 15.x, 16.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        node-version: [20, 22, 24, 25]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/previous-releases
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
-      - run: yarn install
-      - run: yarn lerna run build
-      - run: yarn lerna run test
+      - run: npm ci
+      - run: npx turbo run build --filter='!@dicebear/docs' --filter='!@dicebear/editor'
+      # Same filters as the build above: `test` depends on `build`, so without
+      # them turbo pulls the two apps back in and builds them here, even though
+      # neither has a test script.
+      - run: npx turbo run test --filter='!@dicebear/docs' --filter='!@dicebear/editor'
+
+  # Style only, so a failure shows up as its own red check without failing the
+  # run. Kept apart from type-check-js, which does gate: ESLint runs no
+  # type-aware rules here and therefore needs no build.
+  lint-js:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run lint
+
+  # The two Vue apps are excluded from the build above, so their `.vue` files
+  # are only ever type-checked here. Result does not vary by Node version.
+  type-check-js:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx turbo run type-check
+
+  # Every language that ships a formatter, gathered into one job. Like lint-js it
+  # only reports: a violation is its own red check, but the run stays green, so
+  # a stray blank line cannot block a release or a deploy through the
+  # workflow_call above. Every check carries `!cancelled()` so one pass reports
+  # all of them instead of stopping at the first. None of these results vary by
+  # the SDK versions the matrix jobs below sweep, which is why they moved here.
+  format:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - name: Use Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: Use Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.25'
+      - name: Use Dart
+        uses: dart-lang/setup-dart@v1
+      - name: Use .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install JS dependencies
+        if: ${{ !cancelled() }}
+        run: npm ci
+      # Ruff comes from the `dev` extra so its version stays tied to the
+      # pyproject, matching what test-python resolves.
+      - name: Install Ruff
+        if: ${{ !cancelled() }}
+        working-directory: src/python/core
+        run: pip install -e ".[dev]"
+      # dart format takes the language version from .dart_tool/package_config.json.
+      # Without it there is no pubspec to read, so it falls back to the installed
+      # SDK and rewrites the package in the tall style Dart 3.7 introduced instead
+      # of the short style that `sdk: ^3.4.0` selects.
+      - name: Resolve Dart dependencies
+        if: ${{ !cancelled() }}
+        working-directory: src/dart/core
+        run: dart pub get
+
+      - name: Prettier
+        if: ${{ !cancelled() }}
+        run: npm run prettier:check
+      - name: Ruff
+        if: ${{ !cancelled() }}
+        working-directory: src/python/core
+        run: ruff format --check .
+      - name: Rustfmt
+        if: ${{ !cancelled() }}
+        working-directory: src/rust/core
+        run: cargo fmt --check
+      - name: Gofmt
+        if: ${{ !cancelled() }}
+        working-directory: src/go/core
+        run: test -z "$(gofmt -l .)" || (gofmt -l . && exit 1)
+      - name: Dart format
+        if: ${{ !cancelled() }}
+        working-directory: src/dart/core
+        run: dart format --output=none --set-exit-if-changed .
+      # There is no solution file, so the two projects are named one by one:
+      # `dotnet format` refuses to guess when a directory holds more than one
+      # workspace. Both read the repository .editorconfig, whose [*.cs] section
+      # sets the four-space indent .NET expects.
+      - name: dotnet format
+        if: ${{ !cancelled() }}
+        working-directory: src/csharp/core
+        run: |
+          dotnet format DiceBear.Core.csproj --verify-no-changes
+          dotnet format tests/DiceBear.Core.Tests.csproj --verify-no-changes
+
+  test-php:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php-version: ['8.2', '8.3', '8.4', '8.5']
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Use PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring
+      - name: Install dependencies
+        working-directory: src/php/core
+        run: composer install --no-interaction --prefer-dist
+      - name: Run PHPStan
+        working-directory: src/php/core
+        run: vendor/bin/phpstan analyse --no-progress
+      - name: Run tests
+        working-directory: src/php/core
+        run: vendor/bin/phpunit
+
+  test-python:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Use Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        working-directory: src/python/core
+        run: pip install -e ".[dev]"
+      - name: Run Ruff
+        working-directory: src/python/core
+        run: ruff check .
+      - name: Run mypy
+        working-directory: src/python/core
+        run: mypy src
+      - name: Run tests
+        working-directory: src/python/core
+        run: pytest
+
+  test-rust:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - name: Run Clippy
+        working-directory: src/rust/core
+        run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: Run tests
+        working-directory: src/rust/core
+        run: cargo test
+
+  test-go:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        go-version: ['1.23', '1.24', '1.25']
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Use Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v6
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Run go vet
+        working-directory: src/go/core
+        run: go vet ./...
+      - name: Run tests
+        working-directory: src/go/core
+        run: go test ./...
+
+  test-dart:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        # Lower bound = the pubspec `environment.sdk` floor; keep in sync.
+        sdk: ['3.4', 'stable']
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Use Dart ${{ matrix.sdk }}
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ matrix.sdk }}
+      - name: Install dependencies
+        working-directory: src/dart/core
+        run: dart pub get
+      - name: Check the embedded web fixtures are up to date
+        # The web parity suite embeds a copy of the fixtures (dart2js cannot
+        # read files); regenerate it and fail if it drifted from the canonical
+        # tests/fixtures/parity.
+        working-directory: src/dart/core
+        run: |
+          dart run tool/generate_web_fixtures.dart
+          dart format test/parity/embedded_fixtures.dart
+          git diff --exit-code test/parity/embedded_fixtures.dart
+      - name: Analyze
+        working-directory: src/dart/core
+        run: dart analyze --fatal-infos
+      - name: Run tests
+        working-directory: src/dart/core
+        run: dart test
+      - name: Run web-eligible tests on dart2js
+        # The fixture suites are VM-only (they read disk via dart:io), so the
+        # dart2js build's number formatting and 32-bit PRNG arithmetic is
+        # asserted by the embedded web_parity_test under Chrome.
+        # ubuntu-latest ships google-chrome-stable.
+        working-directory: src/dart/core
+        run: dart test -p chrome
+      - name: Copy the project changelog into the package
+        # CHANGELOG.md inside the package is a git-ignored build artifact:
+        # pub.dev expects it in the package directory, while the repository
+        # maintains a single changelog at the root.
+        run: cp CHANGELOG.md src/dart/core/CHANGELOG.md
+      - name: Validate the publishable archive
+        working-directory: src/dart/core
+        run: dart pub publish --dry-run
+
+  test-csharp:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Use .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          # Lower bound = the highest framework the library targets; keep in
+          # sync with TargetFrameworks in DiceBear.Core.csproj.
+          dotnet-version: '8.0.x'
+      - name: Build
+        # The library multi-targets netstandard2.0 and net8.0, and warnings are
+        # errors. Building it on its own covers both targets, which the test run
+        # does not: a net8.0 test project pulls in only the net8.0 build of what
+        # it references.
+        working-directory: src/csharp/core
+        run: dotnet build DiceBear.Core.csproj --configuration Release
+      - name: Run tests
+        working-directory: src/csharp/core
+        run: dotnet test tests/DiceBear.Core.Tests.csproj --configuration Release
+      - name: Validate the publishable package
+        working-directory: src/csharp/core
+        run: |
+          dotnet pack DiceBear.Core.csproj --configuration Release \
+            --no-build --output ../../../dist-nuget

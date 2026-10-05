@@ -1,0 +1,59 @@
+{
+  "name": "@dicebear/converter",
+  "version": "10.7.0",
+  "description": "SVG Converter for DiceBear",
+  "keywords": [
+    "dicebear"
+  ],
+  "homepage": "https://www.dicebear.com",
+  "bugs": {
+    "url": "https://github.com/dicebear/dicebear/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dicebear/dicebear.git"
+  },
+  "funding": "https://www.dicebear.com/support/",
+  "license": "MIT",
+  "author": "Florian Körner <contact@florian-koerner.com>",
+  "type": "module",
+  "main": "./lib/node/index.js",
+  "browser": "./lib/index.js",
+  "exports": {
+    "node": "./lib/node/index.js",
+    "default": "./lib/index.js"
+  },
+  "types": "./lib/index.d.ts",
+  "files": [
+    "fonts",
+    "LICENSE",
+    "lib",
+    "README.md"
+  ],
+  "scripts": {
+    "prebuild": "del-cli lib",
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "exiftool-vendored": "^35.5.0",
+    "fast-xml-builder": "^1.3.0",
+    "fast-xml-parser": "^5.7.1",
+    "sharp": "^0.35.3",
+    "tmp-promise": "^3.0.3"
+  },
+  "devDependencies": {
+    "@tsconfig/recommended": "^1.0.13",
+    "del-cli": "^7.0.0",
+    "jsdom": "^29.1.1",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,86 @@
+[
+  {
+    "seed": "AB CD",
+    "result": "AC"
+  },
+  {
+    "seed": "café",
+    "result": "CA"
+  },
+  {
+    "seed": "über",
+    "result": "ÜB"
+  },
+  {
+    "seed": "côté",
+    "result": "CÔ"
+  },
+  {
+    "seed": "grün rot",
+    "result": "GR"
+  },
+  {
+    "seed": "l'eau",
+    "result": "LE"
+  },
+  {
+    "seed": "d´or",
+    "result": "DO"
+  },
+  {
+    "seed": "ʼtest",
+    "result": "TE"
+  },
+  {
+    "seed": "user@example.com",
+    "result": "US"
+  },
+  {
+    "seed": "a",
+    "result": "A"
+  },
+  {
+    "seed": "",
+    "result": ""
+  },
+  {
+    "seed": "日本語",
+    "result": "日本"
+  },
+  {
+    "seed": "🎲 spiel",
+    "result": "SP"
+  },
+  {
+    "seed": "Œuvre",
+    "result": "ŒU"
+  },
+  {
+    "seed": "rock-paper",
+    "result": "RP"
+  },
+  {
+    "seed": "a@b\rcd",
+    "result": "A"
+  },
+  {
+    "seed": "a@b\u2028cd",
+    "result": "A"
+  },
+  {
+    "seed": "a@b\u2029cd",
+    "result": "A"
+  },
+  {
+    "seed": "ß test",
+    "result": "SST"
+  },
+  {
+    "seed": "ﬁsh bar",
+    "result": "FIB"
+  },
+  {
+    "seed": "ᾀeolic text",
+    "result": "ἈΙT"
+  }
+]

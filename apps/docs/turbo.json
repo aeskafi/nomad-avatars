@@ -1,0 +1,13 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "env": [
+        "VITE_PRIVACY_POLICY_URL",
+        "VITE_COOKIE_POLICY_URL",
+        "VITE_LEGAL_NOTICE_URL"
+      ]
+    }
+  }
+}

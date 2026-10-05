@@ -1,28 +1,22 @@
 # Cache and log files
-lerna-debug.log*
-yarn-debug.log*
-yarn-error.log*
-npm-debug.log*
+.turbo
+.eslintcache
 .DS_Store
 Thumbs.db
+yarn-error.log
+npm-debug.log*
 
 # Dependencies
 node_modules/
 
-# Environment files
+# Local environment files
 .env
-.env.local
-.env.*.local
+.env*.local
 !.env.example
 !.env.dist
 
-# Build artifacts & caches
+# Build artifacts & local outputs
 dist/
-build/
+dist-nuget/
 lib/
-.docusaurus/
-.cache-loader/
-.tmp/
-
-# Local test outputs
-test-avatar*.svg
+nomad-avatar*.svg

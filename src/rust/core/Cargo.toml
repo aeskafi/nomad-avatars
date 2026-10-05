@@ -1,0 +1,30 @@
+[package]
+name = "dicebear-core"
+version = "10.7.0"
+edition = "2021"
+description = "Core library for generating DiceBear avatars"
+license = "MIT"
+repository = "https://github.com/dicebear/dicebear"
+homepage = "https://www.dicebear.com"
+keywords = ["dicebear", "avatar", "svg"]
+authors = ["Florian Körner <contact@florian-koerner.com>"]
+readme = "README.md"
+
+[dependencies]
+# Unicode-aware word splitting for initials (matches the \p{L}/\p{M} regexes in
+# the JS/PHP/Python ports).
+regex = "1"
+serde = { version = "1", features = ["derive"] }
+# `float_roundtrip`: serde_json's default float parser is ~1 ULP off on some
+# decimals, which would corrupt byte-parity of formatted SVG numbers.
+# `preserve_order`: a style is parsed to a `Value` for schema validation before
+# it is deserialized; without this, `serde_json::Map` sorts keys and SVG
+# attributes would render alphabetically instead of in source order.
+serde_json = { version = "1", features = ["float_roundtrip", "preserve_order"] }
+# Order-preserving maps: SVG attributes render in source order, so the style
+# definition's attribute maps must keep their JSON key order.
+indexmap = { version = "2", features = ["serde"] }
+# Runtime validation of style definitions and options against the shared
+# draft-07 schemas, which ship as the pure-data `dicebear-schema` crate.
+jsonschema = "0.46"
+dicebear-schema = "1.5.1"

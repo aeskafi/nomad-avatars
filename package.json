@@ -1,28 +1,46 @@
 {
   "name": "root",
   "private": true,
+  "packageManager": "npm@11.6.2",
   "workspaces": {
     "packages": [
-      "packages/*",
-      "packages/@dicebear/*",
-      "plugins/figma/*",
-      "scripts",
-      "website"
+      "src/js/*",
+      "apps/*"
     ]
   },
   "scripts": {
-    "build": "lerna run build",
-    "test": "lerna run test",
-    "demo": "node -e 'const fs=require(\"fs\"); const {createAvatar}=require(\"./packages/@dicebear/avatars/dist\"); const bottts=require(\"./packages/@dicebear/avatars-bottts-sprites/dist\"); fs.writeFileSync(\"test-avatar.svg\", createAvatar(bottts, { seed: \"tech-nomad\" })); console.log(\"Generated test-avatar.svg successfully!\");'",
-    "website:start": "yarn --cwd website start",
-    "website:build": "yarn --cwd website build",
-    "website:serve": "yarn --cwd website serve",
-    "prepare-publish": "lerna version --force-publish"
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "type-check": "turbo run type-check",
+    "test:scripts": "node --test 'tests/**/*.test.js'",
+    "editor:dev": "npm --workspace=@dicebear/editor run dev",
+    "editor:build": "npm --workspace=@dicebear/editor run build",
+    "editor:preview": "npm --workspace=@dicebear/editor run preview -- --port 3000",
+    "core:build": "npm --workspace=@dicebear/core run build",
+    "core:test": "npm --workspace=@dicebear/core run test",
+    "demo": "node -e 'const { Style, Avatar } = require(\"./src/js/core/lib\"); const lorelei = require(\"./node_modules/@dicebear/styles/dist/lorelei.min.json\"); const avatar = new Avatar(new Style(lorelei), { seed: \"tech-nomad\" }); const fs = require(\"fs\"); fs.writeFileSync(\"nomad-avatar.svg\", avatar.toString()); console.log(\"Generated nomad-avatar.svg (Size: \" + fs.statSync(\"nomad-avatar.svg\").size + \" bytes)!\");'",
+    "fixtures:parity": "node tests/fixtures/parity/generate.mjs",
+    "lint": "eslint . --cache",
+    "lint:fix": "eslint . --cache --fix",
+    "prettier": "prettier --write \"{src,apps}/**/*.{js,ts,vue,json,md}\" \"*.md\"",
+    "prettier:check": "prettier --check \"{src,apps}/**/*.{js,ts,vue,json,md}\" \"*.md\""
   },
   "devDependencies": {
-    "lerna": "^4.0.0"
+    "@eslint/js": "^10.0.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@vue/eslint-config-typescript": "^14.6.0",
+    "eslint": "^10.1.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vue": "^10.7.0",
+    "globals": "^17.4.0",
+    "prettier": "^3.8.1",
+    "turbo": "^2.5.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.58.0"
   },
-  "resolutions": {
-    "tslib": "^2.6.2"
+  "overrides": {
+    "minimatch": ">=10.2.1",
+    "serialize-javascript": "7.0.3",
+    "esbuild": "^0.28.1"
   }
 }

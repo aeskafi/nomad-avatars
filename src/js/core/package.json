@@ -1,0 +1,54 @@
+{
+  "name": "@dicebear/core",
+  "version": "10.7.0",
+  "description": "Unique avatars from dozens of styles — deterministic, customizable, vector-based.",
+  "keywords": [
+    "avatar",
+    "identicon",
+    "avataaars",
+    "bottts",
+    "dicebear"
+  ],
+  "homepage": "https://www.dicebear.com",
+  "bugs": {
+    "url": "https://github.com/dicebear/dicebear/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dicebear/dicebear.git"
+  },
+  "funding": "https://www.dicebear.com/support/",
+  "license": "MIT",
+  "author": "Florian Körner <contact@florian-koerner.com>",
+  "type": "module",
+  "main": "./lib/index.js",
+  "exports": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "LICENSE",
+    "lib",
+    "README.md"
+  ],
+  "scripts": {
+    "prebuild": "del-cli lib && node scripts/compile-schema.mjs",
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "prepack": "node scripts/extend-license.mjs",
+    "postpack": "git checkout LICENSE",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "@dicebear/schema": "^1.5.1",
+    "@exodus/schemasafe": "^1.3.0",
+    "@tsconfig/recommended": "^1.0.13",
+    "del-cli": "^7.0.0",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

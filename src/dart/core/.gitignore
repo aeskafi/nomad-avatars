@@ -1,0 +1,10 @@
+# Note: .pubignore replaces this file for `dart pub publish`, so entries here
+# never affect the package contents.
+.dart_tool
+pubspec.lock
+
+# Build-time copy of the repository's CHANGELOG.md (pub.dev expects the file
+# inside the package directory) — created by the CI workflows before
+# `dart pub publish [--dry-run]`, like the LICENSE copies in the styles and
+# schema repositories.
+CHANGELOG.md
