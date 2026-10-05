@@ -129,7 +129,7 @@ function onFullscreen() {
     <div class="header-dialog-actions">
       <Button
         as="a"
-        href="https://github.com/aeskafi/dicebear"
+        href="https://github.com/aeskafi/nomad-avatars"
         target="_blank"
         rel="noopener"
         rounded

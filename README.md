@@ -41,7 +41,7 @@
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/aeskafi/dicebear.git nomad-avatars
+git clone https://github.com/aeskafi/nomad-avatars.git
 cd nomad-avatars
 npm install --ignore-scripts
 ```
